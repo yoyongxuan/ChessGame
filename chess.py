@@ -261,6 +261,87 @@ class Board:
         colour = piece.colour
         if type(piece) == Pawn and (end[1] == 0 or end[1] == 7):
             self.add(end,Queen(colour))
+    
+    def king_castling(self,start,end):
+        ''' 
+        Castling : Special move by King :
+
+        King can move two steps towards one of the Rook pieces and 
+        the Rook will 'jump over' the King piece to be adjacent to it
+
+        Can only be done if :
+        1) The King and the Rook have not been moved
+        2) The player is not checkmated 
+        3) Castling will not cause player to be checkmated
+        4) There are no piece between the King and the Rook
+        '''
+
+        # For white side , I need to check 
+        # i)   if coordinates '50' and '60' / '10' , '20' , '30' are empty using 'nojump' method
+        # ii)  if Rook pieces are at coordinates '70' / '00'
+        # iii) if checkmate has been triggered before the move is made
+        # iv)  if checkmate condition will be triggered if the move is made
+
+        # For black side , I need to check
+        # i)   if coordinates '57' , '67' / '17' , '27' , '37' are empty using 'nojump' method
+        # ii)  if Rook pieces are at coordinates ' '77' / '07'
+        # iii) if checkmate has been triggered before the move is made
+        # iv)  if checkmate condition will be triggered if the move is made
+        
+        piece = self.get_piece(start)
+        if type(piece) == King:
+            colour = piece.colour
+            if colour == 'white':
+                if start[1] == 4 and end[1] == 6:
+                    if not(self.nojump(start,end)) == False:
+                        RookOldPosition = (7,0)
+                        if type(self.get_piece(RookNewPosition)) == Rook:
+                            check = self.check(colour,return_checks = False)
+                            if check == False:
+                                RookNewPosition = (5,0)
+                                self.add(RookNewPosition , Rook(colour))
+                                self.remove(RookOldPosition)
+                                self.move(start,end)
+
+                if start[1] == 4 and end[1] == 1:
+                    if not(self.nojump(start,end)) == False:
+                        RookOldPosition = (0,0)
+                        if type(self.get_piece(RookNewPosition)) == Rook:
+                            check = self.check(colour,return_checks = False)
+                            if check == False:
+                                RookNewPosition = (2,0)
+                                self.add(RookNewPosition , Rook(colour))
+                                self.remove(RookOldPosition)
+                                self.move(start,end)
+
+            if colour == 'black':
+                if start[1] == 4 and end[1] == 6:
+                    if not(self.nojump(start,end)) == False:
+                        RookOldPosition = (7,7)
+                        if type(self.get_piece(RookNewPosition)) == Rook:
+                            check = self.check(colour,return_checks = False)
+                            if check == False:
+                                RookNewPosition = (5,7)
+                                self.add(RookNewPosition , Rook(colour))
+                                self.remove(RookOldPosition)
+                                self.move(start,end)
+
+                if start[1] == 4 and end[1] == 1:
+                    if not(self.nojump(start,end)) == False:
+                        RookOldPosition = (0,7)
+                        if type(self.get_piece(RookNewPosition)) == Rook:
+                            check = self.check(colour,return_checks = False)
+                            if check == False:
+                                RookNewPosition = (2,7)
+                                self.add(RookNewPosition , Rook(colour))
+                                self.remove(RookOldPosition)
+                                self.move(start,end)
+
+
+
+
+
+        
 
     def threaten(self,position,colour,**kwargs):
         ''' Checks whether the input position is threatened by any piece of the input colour
@@ -341,6 +422,7 @@ class Board:
         self.checkmate()
         self.promotion(end)
         self.printmove(start,end)
+        self.king_castling(start,end)
         
     def other_colour(self,colour):
         '''Returns the colour that is not the current turn'''
@@ -409,59 +491,7 @@ class King(BasePiece):
         horizontally, vertically, or diagonally.
         '''
         x, y, dist = self.vector(start, end)
-
-        ''' 
-        Castling : Special move by King :
-
-        King can move two steps towards one of the Rook pieces and 
-        the Rook will 'jump over' the King piece to be adjacent to it
-
-        Can only be done if :
-        1) The King and the Rook have not been moved
-        2) The player is not checkmated 
-        3) Castling will not cause player to be checkmated
-        4) There are no piece between the King and the Rook
-        '''
-
-        # For black side , I need to check 
-        # i)   if coordinates '50' and '60' / '10' , '20' , '30' are empty using 'nojump' method
-        # ii)  if Rook pieces are at coordinates '70' / '00'
-        # iii) if checkmate has been triggered before the move is made
-        # iv)  if checkmate condition will be triggered if the move is made
-
-        # For white side , I need to check
-        # i)   if coordinates '57' , '67' / '17' , '27' , '37' are empty using 'nojump' method
-        # ii)  if Rook pieces are at coordinates ' '77' / '07'
-        # iii) if checkmate has been triggered before the move is made
-        # iv)  if checkmate condition will be triggered if the move is made
-        print(f'{self.colour} king\'s starting position:{start} , {self.colour} king\'s ending position:{end}')
-
-        if (start[1] == 4 and end[1] == 6) or (start[1] == 4 and end[1] == 1):
-
-            if self.colour == 'black':
-                if start[1] == 4 and end[1] == 6:  
-                    if type(self.get_piece('70')) == Rook:   #condition (ii)
-                        if self.nojump(50,60) == True:            #condition(i)
-                            return (dist == 2) or (abs(x) == abs(y) == 2)
- 
-
-                elif start[1] == 4 and end[1] == 1:
-                    if type(self.get_piece('00')) == Rook:   #condition (ii)
-                        if self.nojump(10,30) == True:            #condition (i)
-                            return (dist == 2) or (abs(x) == abs(y) == 2)
-
-            if self.colour == 'white':
-                if start[1] == 4 and end[1] == 6:
-                    if type(self.get_piece('77')) == Rook:      # condition (ii)
-                        if self.nojump(57,67) == True:               #condition (i)
-                            return (dist == 2) or (abs(x) == abs(y) == 2)
-
-                elif start[1] == 4 and end[1] == 1:
-                    if type(self.get_piece('07')) == Rook:  #condition (ii)
-                        if self.nojump(17,37) == True:             #condition (i)
-                            return (dist == 2) or (abs(x) == abs(y) == 2)
-        else:
-            return (dist == 1) or (abs(x) == abs(y) == 1)
+        return (dist == 1) or (abs(x) == abs(y) == 1)
                     
 
     
