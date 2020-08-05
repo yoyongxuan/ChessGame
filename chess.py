@@ -23,6 +23,9 @@ class Board:
     def __init__(self, **kwargs):
         self.position = {}
         self.debug = kwargs.get('debug',False)
+        self.inputf = kwargs.get('inputf', input)
+        self.printf = kwargs.get('printf', print)
+        self.set_board = kwargs.get('set_board', print)
 
     def coords(self):
         '''Return list of piece coordinates.'''
@@ -80,7 +83,7 @@ class Board:
     
     def start(self):
         '''Set up the pieces and start the game.'''
-
+        self.printf('New game started')
         colour = 'black'
         self.add((0, 7), Rook(colour))
         self.add((1, 7), Knight(colour))
@@ -119,25 +122,34 @@ class Board:
         # Row 7 is at the top, so print in reverse order
         if self.debug == True:
             print('== DISPLAY ==')
+
+        output = ''
+
         for row in range(8, -1, -1):
             
             for col in range(-1, 8):
                 coord = (col, row)  # tuple
                 if coord in self.coords():
                     piece = self.get_piece(coord)
-                    print(f'{piece.symbol()}', end='')
+                    output+= f'{piece.symbol()}'
                 elif row == 8:
                     if col == -1:
-                        print(' ','0 1 2 3 4 5 6 7' ,end='')
+                        output += ' '
+                    else:
+                        output += str(col)
+
                 elif col == -1:
-                    print(row,end='')   
+                    output += str(row) 
                 else:
                     piece = None
-                    print(' ', end='')
+                    output += ' '
+                
                 if col == 7:     # Put line break at the end
-                    print('')
+                    output += '\n'
                 else:            # Print a space between pieces
-                    print(' ', end='')
+                    output += ' '
+        output = output.strip('\n')
+        self.set_board(output)
 
     def prompt(self):
         '''
@@ -182,12 +194,12 @@ class Board:
 
         while True:
             try:
-                inputstr = input(f'{self.turn.title()} player: ')
+                inputstr = self.inputf(f'{self.turn.title()} player: ')
                 if not valid_format(inputstr):
-                    print('Invalid input. Please enter your move in the '
-                        'following format: __ __, _ represents a digit.')
+                    self.printf('Invalid input. Please enter your move in the '
+                        ' following format: __ __, _ represents a digit.')
                 elif not valid_num(inputstr):
-                    print('Invalid input. Move digits should be 0-7.')
+                    self.printf('Invalid input. Move digits should be 0-7.')
                 else:
                     start, end = split_and_convert(inputstr)
 
@@ -199,7 +211,7 @@ class Board:
                     else:
                         raise MoveError(self.get_piece(start), 'Invalid move')
             except MoveError:
-                print(f'Invalid move for {self.get_piece(start)}')
+                self.printf(f'Invalid move for {self.get_piece(start)}')
 
     def moveclassifier(self, start, end):
         '''
@@ -356,7 +368,6 @@ class Board:
                         coords = (x,y)
                         if self.valid_move(king_pos,coords):
                             if self.move_will_check_own_king(king_pos,coords):
-                                print((king_pos,coords))
                                 checkmate = False
                                 break
         return checkmate        
@@ -369,7 +380,7 @@ class Board:
         '''Print the move after its made'''
         a,b = start
         c,d = end
-        print(f'{self.get_piece(end)} {a}{b} -> {c}{d}')
+        self.printf(f'{self.get_piece(end)} {a}{b} -> {c}{d}')
         #movelog
         with open('moves.txt','a') as f:
             f.write(f'{self.get_piece(end)} {a}{b} -> {c}{d}\n')
@@ -385,7 +396,7 @@ class Board:
             if self.checkmate(checks):
                 self.end()
             else:
-                print(f'{self.other_turn} is checked')
+                self.printf(f'{self.other_turn} is checked')
         self.promotion(end)
         self.printmove(start,end)
         

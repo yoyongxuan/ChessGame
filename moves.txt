@@ -1,0 +1,7 @@
+white pawn 41 -> 43
+black pawn 06 -> 05
+white bishop 50 -> 23
+black pawn 05 -> 04
+white queen 30 -> 74
+black pawn 04 -> 03
+white queen 74 -> 56
