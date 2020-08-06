@@ -243,13 +243,14 @@ class Board:
                 xcord = end[0]
                 ycord = start[1]
                 sidepiece = self.get_piece((xcord, ycord))
-                if sidepiece.name == 'pawn':
-                    if not sidepiece.moved:
-                        return False
+                if sidepiece != None:
+                    if sidepiece.name == 'pawn':
+                        if not sidepiece.moved:
+                            return False
                     
-                    else:
-                        self.remove((xcord,ycord))
-                        return True
+                        else:
+                            self.remove((xcord,ycord))
+                            return True
                 else:
                     return False
             elif not iscapture and end_piece is not None:

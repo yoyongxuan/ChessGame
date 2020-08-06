@@ -1,4 +1,6 @@
-class ConsoleInterface:
+import curses
+
+class TextInterface:
     def __init__(self):
         self.stdscr = curses.initscr()
         self.board = self.create_window(11,22,0,14,'Board')
@@ -46,3 +48,30 @@ class ConsoleInterface:
         string = value.decode('utf-8')
         self.player.refresh()
         return string
+
+class ConsoleInterface:
+    def __init__(self):
+        pass
+
+    def set_board(self, inputstr):
+        '''
+        Takes board info as an inputstr
+        and prints it to the console.
+        '''
+        print(inputstr)
+
+    def set_msg(self, inputstr):
+        '''
+        Takes an inputstr and prints it
+        to the console.
+        '''
+        print(inputstr)
+
+    def get_player_input(self, msgstr):
+        '''
+        Prompts the user with a msgstr,
+        returns their input as str.
+        '''
+        value = input(msgstr)
+        return value
+
